@@ -28,6 +28,7 @@ namespace EFC
     public class BloggingContext: DbContext
     {
         public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Customer> Customers { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -36,9 +37,17 @@ namespace EFC
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            //Fluent configuration of owned types.
             modelBuilder.Entity<Blog>()
                 .Property<string>("Url")
                 .HasField("_url");
+
+            modelBuilder.Entity<Customer>()
+                .OwnsOne(c => c.WorkAddress);
+
+            modelBuilder.Entity<Customer>()
+                .OwnsOne(c => c.PhysicalAddress)
+                .ToTable("PhysicalsAddresses");
         }
     }
 
@@ -56,5 +65,24 @@ namespace EFC
         {
             _url = url;
         }
+    }
+
+    public class Customer
+    {
+        public int CustomerId { get; set; }
+        public string Name { get; set; }
+
+        public Address WorkAddress { get; set; }
+        public Address PhysicalAddress { get; set; }
+    }
+
+    public class Address
+    {
+        public string LineOne { get; set; }
+        public string LineTwo { get; set; }
+        public string PostalOrZipCode { get; set; }
+        public string StateOrProvince { get; set; }
+        public string CityOrTown { get; internal set; }
+        public string CountryName { get; set; }
     }
 }

@@ -31,7 +31,7 @@ namespace WebAPI.Controllers
         [HttpPost]
         public IActionResult Post([FromBody]Value value)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }

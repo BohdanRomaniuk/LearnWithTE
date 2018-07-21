@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,8 +19,42 @@ namespace EFC
 
             using (var db = new BloggingContext())
             {
-                var blog = db.Blogs.Single();
+                var blog = new Blog { Name = "Modest Blog" };
+                blog.SetUrl("http://bohdanromaniuk.com");
+                blog.Posts = new List<Post>();
+                blog.Posts.Add(new Post() { Title = "My life", Content = "Some story", IsDeleted = false });
+                blog.Posts.Add(new Post() { Title = "My life2", Content = "Some story2", IsDeleted = false });
+                db.Blogs.Add(blog);
+                db.SaveChanges();
+            }
+
+            using (var db = new BloggingContext())
+            {
+                Console.WriteLine("SingleBlog");
+                var blog = db.Blogs.FirstOrDefault();
                 Console.WriteLine($"{blog.Name}: {db.Entry(blog).Property("Url").CurrentValue}");
+
+                Console.WriteLine("Blogs:");
+                var blogs = db.Blogs.FromSql("SELECT * FROM dbo.Blogs")
+                    .OrderBy(b => b.Name)
+                    .Select(b => b.Name)
+                    .ToList();
+                foreach(var blogName in blogs)
+                {
+                    Console.WriteLine(blogName);
+                }
+
+                Console.WriteLine("Blogs with posts");
+                var blogsWithPosts = db.Blogs.Include(b => b.Posts).OrderBy(b => b.BlogId);
+                foreach(var blogWithPost in blogsWithPosts)
+                {
+                    Console.WriteLine($"Name: {blogWithPost.Name} Id: {blogWithPost.BlogId}");
+                    Console.WriteLine($"Blog Posts(Count: {blogWithPost.Posts.Count})#########");
+                    foreach(var post in blogWithPost.Posts)
+                    {
+                        Console.WriteLine($"\tTitle: {post.Title,-15} Content: {post.Content,-15}  Deleted: {post.IsDeleted}");
+                    }
+                }
             }
             Console.ReadKey();
         }
@@ -57,6 +92,8 @@ namespace EFC
         public string Name { get; set; }
         private string _url;
 
+        public List<Post> Posts { get; set; }
+
         public Blog()
         {
         }
@@ -65,6 +102,17 @@ namespace EFC
         {
             _url = url;
         }
+    }
+
+    public class Post
+    {
+        public int PostId { get; set; }
+        public string Title { get; set; }
+        public string Content { get; set; }
+        public bool IsDeleted { get; set; }
+
+        public int BlogId { get; set; }
+        public Blog Blog { get; set; }
     }
 
     public class Customer

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -19,22 +20,27 @@ namespace WebAPI.Controllers
         }
 
         // GET api/<controller>/5
-        [HttpGet("{id?}")]
-        public string Get(int id)
+        [HttpGet("{id:int}")]
+        public string Get(int id, string query)
         {
-            return $"value {id}";
+            return $"value {id}  query={query}";
         }
 
         // POST api/<controller>
         [HttpPost]
-        public void Post([FromBody]string value)
+        public void Post([FromBody]Value value)
         {
+            if(!ModelState.IsValid)
+            {
+                throw new InvalidOperationException("Invalid");
+            }
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id=123}")]
         public void Put(int id, [FromBody]string value)
         {
+
         }
 
         // DELETE api/<controller>/5
@@ -42,5 +48,13 @@ namespace WebAPI.Controllers
         public void Delete(int id)
         {
         }
+    }
+
+    public class Value
+    {
+        public int Id { get; set; }
+
+        [MinLength(3)]
+        public string Text { get; set; }
     }
 }

@@ -19,7 +19,7 @@ namespace WebAPI.Controllers
         }
 
         // GET api/<controller>/5
-        [HttpGet("{id}")]
+        [HttpGet("{id?}")]
         public string Get(int id)
         {
             return $"value {id}";
@@ -32,13 +32,13 @@ namespace WebAPI.Controllers
         }
 
         // PUT api/<controller>/5
-        [HttpPut("{id}")]
+        [HttpPut("{id=123}")]
         public void Put(int id, [FromBody]string value)
         {
         }
 
         // DELETE api/<controller>/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public void Delete(int id)
         {
         }
